@@ -7,148 +7,13 @@ using UnityEngine.UIElements;
 
 public class MeshGenerator : MonoBehaviour
 {
-    public int seed;
-    [Header("Mesh Attributes")]
-    public int alturaMesh;
-    public int larguraMesh;
-    public float tamanhoSquare; //valores dos lados do square.
-    [Header("Terrain Attributes")]
-    int alturaTerreno;
-    int larguraTerreno;
-    float relevoMax;
-    [Range(0.0f, 1.0f)]
-    public float relevoMaxPercent;
-    float relevoMin;
-    [Range(0.0f, 0.999f)]
-    public float relevoMinPercent;
-    public ParticleNode[,] densityMap;
-    [Header("HeightMap Noise Attributes")]
-    public float scale;
-    public float lacunarity;
-    public float gain;
-    public int octaves;
-    public FastNoise.FractalType fractalType;
-    public FastNoise.NoiseType noiseType;
-    [Header("DensityMap Noise Attributes")]
-    public float scaleD;
-    public float lacunarityD;
-    public float gainD;
-    public int octavesD;
-    public FastNoise.FractalType fractalTypeD;
-    public FastNoise.NoiseType noiseTypeD;
-    [Range(0.0f, 1.0f)]
-    public float densityFloat;
-    void Start()
+    
+    public int GerarSeed()
     {
-        GerarSeed();
-        Init();
+        return System.Guid.NewGuid().GetHashCode();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Init();
-        }
-        if (Input.GetKeyDown(KeyCode.S))
-        {
-            GerarSeed();
-        }
-    }
-
-    public void Init()
-    {
-        //DateTime ini = DateTime.Now;
-        UnityEngine.Random.InitState(seed);
-        //relevoMin = UnityEngine.Random.Range(0, alturaMesh / 2);
-        //relevoMax = UnityEngine.Random.Range(alturaMesh / 2, alturaMesh);
-        alturaTerreno = (int)(alturaMesh / tamanhoSquare);
-        larguraTerreno = (int)(larguraMesh / tamanhoSquare);
-        relevoMin = alturaTerreno*relevoMinPercent;
-        relevoMax = alturaTerreno*relevoMaxPercent;
-        densityMap = GerarDensityMap();
-        GerarMesh(densityMap);
-        //print(DateTime.Now - ini);
-    }
-
-    public void GerarSeed()
-    {
-        seed = System.Guid.NewGuid().GetHashCode();
-    }
-
-    public MeshData GerarMesh(ParticleNode[,] densityMap)
-    {
-        MeshData meshData = new MeshData();
-        //definindo os vertices
-        for (int i = 0; i < densityMap.GetLength(0) - 1; i++)
-        {
-            for (int j = 0; j < densityMap.GetLength(1) - 1; j++)
-            {
-                    Square square = new Square(tamanhoSquare);
-                    densityMap[i, j + 1].localPosition = new Vector3(i * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
-                    square.setUpLeft(densityMap[i, j + 1]);
-                    densityMap[i + 1, j + 1].localPosition = new Vector3((i + 1) * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
-                    square.setUpRight(densityMap[i + 1 , j + 1]);
-                    densityMap[i, j].localPosition = new Vector3(i * tamanhoSquare, j * tamanhoSquare, 0);
-                    square.setBottomLeft(densityMap[i, j]);
-                    densityMap[i + 1, j].localPosition = new Vector3((i + 1) * tamanhoSquare, (j) * tamanhoSquare, 0);
-                    square.setBottomRight(densityMap[i + 1, j]);
-                    square.AddInMeshData(meshData);
-
-            }
-
-        }
-        return meshData;
-    }
-    float[] GerarHeightMap()
-    {
-        float[] heightMap = new float[larguraTerreno]; //largura dividido pelo tamanho do cubo x 2(pois são 2 vertices por eixo)
-        FastNoise noise = new FastNoise(seed);
-        noise.SetFractalOctaves(octaves);
-        noise.SetFractalLacunarity(lacunarity);
-        noise.SetFractalGain(gain);
-        noise.SetFractalType(fractalType);
-        noise.SetNoiseType(noiseType);
-        for (int i = 0; i < heightMap.Length; i++)
-        {
-            heightMap[i] = noise.GetNoise(i / scale, 0);
-        }
-
-        return heightMap;
-    }
-
-    ParticleNode[,] GerarDensityMap()
-    {
-        //Gerando heightMap;
-        float[] heightMap = GerarHeightMap();
-        ParticleNode[,] densityMap = new ParticleNode[larguraTerreno , alturaTerreno];
-        FastNoise noise = new FastNoise((seed - 10) * 2);
-        noise.SetFractalOctaves(octavesD);
-        noise.SetFractalLacunarity(lacunarityD);
-        noise.SetFractalGain(gainD);
-        noise.SetFractalType(fractalTypeD);
-        noise.SetNoiseType(noiseTypeD);
-        for (int i = 0; i < densityMap.GetLength(0); i++)
-        {
-            float altura = Mathf.Lerp(relevoMin, relevoMax, heightMap[i]);
-            for (int j = 0; j < densityMap.GetLength(1); j++)
-            {
-                densityMap[i, j] = new ParticleNode(false);
-                if (j < altura)
-                {
-                    if (noise.GetNoise(i, j) < densityFloat)
-                    {   
-                        densityMap[i, j].isDense = true;
-                    }
-                }
-            }
-        }
-
-
-        return densityMap;
-    }
-
+    
 }
 
 public class MeshData
@@ -169,6 +34,61 @@ public class MeshData
         triangulos = new List<int>();
         vertexIndexes = new Dictionary<Vector3, VertexData>(new Vector3CoordComparer());
     }
+
+    public void BuildMeshData(ParticleNode[,] densityMap, float tamanhoSquare)
+    {
+        //definindo os vertices
+        for (int i = 0; i < densityMap.GetLength(0) - 1; i++)
+        {
+            for (int j = 0; j < densityMap.GetLength(1) - 1; j++)
+            {
+                Square square = new Square(tamanhoSquare);
+                densityMap[i, j + 1].localPosition = new Vector3(i * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
+                square.setUpLeft(densityMap[i, j + 1]);
+                densityMap[i + 1, j + 1].localPosition = new Vector3((i + 1) * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
+                square.setUpRight(densityMap[i + 1, j + 1]);
+                densityMap[i, j].localPosition = new Vector3(i * tamanhoSquare, j * tamanhoSquare, 0);
+                square.setBottomLeft(densityMap[i, j]);
+                densityMap[i + 1, j].localPosition = new Vector3((i + 1) * tamanhoSquare, (j) * tamanhoSquare, 0);
+                square.setBottomRight(densityMap[i + 1, j]);
+                square.AddInMeshData(this);
+            }
+        }
+    }
+
+    public MeshData BuildSurfaceMeshData()
+    {
+        int profundidadeQuadSize = 20;
+        MeshData surfaceMesh = new MeshData();
+        VertexData[] vertexDataArray = vertexIndexes.Values.ToArray<VertexData>();
+        Vector3[] coordArray = vertexIndexes.Keys.ToArray();
+        for (int i = 0; i < triangulos.Count; i += 3)
+        {
+            if (SharedTriangles(vertexDataArray[triangulos[i]], vertexDataArray[triangulos[i + 1]]))
+            {
+                surfaceMesh.TriangulateBorder(coordArray[triangulos[i]], coordArray[triangulos[i + 1]], profundidadeQuadSize);
+            }
+            if (SharedTriangles(vertexDataArray[triangulos[i + 1]], vertexDataArray[triangulos[i + 2]]))
+            {
+                surfaceMesh.TriangulateBorder(coordArray[triangulos[i + 1]], coordArray[triangulos[i + 2]], profundidadeQuadSize);
+            }
+            if (SharedTriangles(vertexDataArray[triangulos[i]], vertexDataArray[triangulos[i + 2]]))
+            {
+                surfaceMesh.TriangulateBorder(coordArray[triangulos[i + 2]], coordArray[triangulos[i]], profundidadeQuadSize);
+            }
+        }
+        return surfaceMesh;
+    }
+
+    public Mesh BuildMeshComponent()
+    {
+        Mesh mesh = new Mesh();
+        mesh.vertices = vertexIndexes.Keys.ToArray();
+        mesh.triangles = triangulos.ToArray();
+        mesh.RecalculateNormals();
+        return mesh;
+    }
+
 
     VertexData AssignVertice(Vector3 coord)
     {
@@ -203,14 +123,7 @@ public class MeshData
         triangulos.Add(c.index);
     }
 
-    public Mesh CriarMesh()
-    {
-        Mesh mesh = new Mesh();
-        mesh.vertices = vertexIndexes.Keys.ToArray();
-        mesh.triangles = triangulos.ToArray();
-        mesh.RecalculateNormals();
-        return mesh;
-    }
+    
     bool SharedTriangles(VertexData verticeA, VertexData verticeB)
     {
         int shared = 0;
@@ -240,31 +153,6 @@ public class MeshData
             AddTriangleSimultaneo(coordA, coordA + new Vector3(0, 0, i*profundidadeQuadSide), coordB);
             AddTriangleSimultaneo(coordB, coordA + new Vector3(0, 0, i*profundidadeQuadSide), coordB + new Vector3(0, 0, i*profundidadeQuadSide));
         }
-    }
-    
-
-    public MeshData CalculateSurfaceMesh()
-    {
-        int profundidadeQuadSize = 20;
-        MeshData surfaceMesh = new MeshData();
-        VertexData[] vertexDataArray = vertexIndexes.Values.ToArray<VertexData>();
-        Vector3[] coordArray = vertexIndexes.Keys.ToArray();
-        for (int i = 0; i < triangulos.Count; i+=3)
-        {
-            if (SharedTriangles(vertexDataArray[triangulos[i]], vertexDataArray[triangulos[i+1]]))
-            {
-                surfaceMesh.TriangulateBorder(coordArray[triangulos[i]], coordArray[triangulos[i + 1]], profundidadeQuadSize);
-            }
-            if (SharedTriangles(vertexDataArray[triangulos[i +1]], vertexDataArray[triangulos[i + 2]]))
-            {
-                surfaceMesh.TriangulateBorder(coordArray[triangulos[i+1]], coordArray[triangulos[i + 2]], profundidadeQuadSize);
-            }
-            if (SharedTriangles(vertexDataArray[triangulos[i]], vertexDataArray[triangulos[i + 2]]))
-            {
-                surfaceMesh.TriangulateBorder(coordArray[triangulos[i + 2]], coordArray[triangulos[i]], profundidadeQuadSize);
-            }
-        }
-        return surfaceMesh;
     }
 
     public int GetQtdTriangles()

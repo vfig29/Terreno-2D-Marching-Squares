@@ -27,7 +27,6 @@ public class Chunk
         {
             for (int y = 0; y < nodeMap.GetLength(1); y++)
             {
-                //float thisX = 
                 nodeMap[x,y] = new ParticleNode(false);
                 nodeMap[x, y].localPosition = NodeMapIndexToLocalCoord(x, y);
                 LoadNodeLoadPipeline(nodeMap[x, y]);
