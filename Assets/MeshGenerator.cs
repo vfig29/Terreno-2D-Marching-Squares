@@ -21,7 +21,7 @@ public class MeshGenerator : MonoBehaviour
     float relevoMin;
     [Range(0.0f, 0.999f)]
     public float relevoMinPercent;
-    public Node[,] densityMap;
+    public ParticleNode[,] densityMap;
     [Header("HeightMap Noise Attributes")]
     public float scale;
     public float lacunarity;
@@ -77,7 +77,7 @@ public class MeshGenerator : MonoBehaviour
         seed = System.Guid.NewGuid().GetHashCode();
     }
 
-    public MeshData GerarMesh(Node[,] densityMap)
+    public MeshData GerarMesh(ParticleNode[,] densityMap)
     {
         MeshData meshData = new MeshData();
         //definindo os vertices
@@ -86,13 +86,13 @@ public class MeshGenerator : MonoBehaviour
             for (int j = 0; j < densityMap.GetLength(1) - 1; j++)
             {
                     Square square = new Square(tamanhoSquare);
-                    densityMap[i, j + 1].worldPosition = new Vector3(i * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
+                    densityMap[i, j + 1].localPosition = new Vector3(i * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
                     square.setUpLeft(densityMap[i, j + 1]);
-                    densityMap[i + 1, j + 1].worldPosition = new Vector3((i + 1) * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
+                    densityMap[i + 1, j + 1].localPosition = new Vector3((i + 1) * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
                     square.setUpRight(densityMap[i + 1 , j + 1]);
-                    densityMap[i, j].worldPosition = new Vector3(i * tamanhoSquare, j * tamanhoSquare, 0);
+                    densityMap[i, j].localPosition = new Vector3(i * tamanhoSquare, j * tamanhoSquare, 0);
                     square.setBottomLeft(densityMap[i, j]);
-                    densityMap[i + 1, j].worldPosition = new Vector3((i + 1) * tamanhoSquare, (j) * tamanhoSquare, 0);
+                    densityMap[i + 1, j].localPosition = new Vector3((i + 1) * tamanhoSquare, (j) * tamanhoSquare, 0);
                     square.setBottomRight(densityMap[i + 1, j]);
                     square.AddInMeshData(meshData);
 
@@ -118,11 +118,11 @@ public class MeshGenerator : MonoBehaviour
         return heightMap;
     }
 
-    Node[,] GerarDensityMap()
+    ParticleNode[,] GerarDensityMap()
     {
         //Gerando heightMap;
         float[] heightMap = GerarHeightMap();
-        Node[,] densityMap = new Node[larguraTerreno , alturaTerreno];
+        ParticleNode[,] densityMap = new ParticleNode[larguraTerreno , alturaTerreno];
         FastNoise noise = new FastNoise((seed - 10) * 2);
         noise.SetFractalOctaves(octavesD);
         noise.SetFractalLacunarity(lacunarityD);
@@ -134,12 +134,12 @@ public class MeshGenerator : MonoBehaviour
             float altura = Mathf.Lerp(relevoMin, relevoMax, heightMap[i]);
             for (int j = 0; j < densityMap.GetLength(1); j++)
             {
-                densityMap[i, j] = new Node(false);
+                densityMap[i, j] = new ParticleNode(false);
                 if (j < altura)
                 {
                     if (noise.GetNoise(i, j) < densityFloat)
                     {   
-                        densityMap[i, j].ativo = true;
+                        densityMap[i, j].isDense = true;
                     }
                 }
             }
@@ -277,8 +277,8 @@ public class Square
 {
     float size;
     //vertice:
-    Node upLeft, upRight, bottomLeft, bottomRight;
-    Node bottomCenter, rightCenter, upCenter, leftCenter;
+    ParticleNode upLeft, upRight, bottomLeft, bottomRight;
+    ParticleNode bottomCenter, rightCenter, upCenter, leftCenter;
     int configuration;
 
     public Square(float _size)
@@ -286,43 +286,43 @@ public class Square
         size = _size;
         configuration = 0;
     }
-    public void setUpLeft(Node node)
+    public void setUpLeft(ParticleNode node)
     {
         upLeft = node;
-        upCenter = new Node(true, node.worldPosition + (Vector3.right * size / 2));
-        leftCenter = new Node(true, node.worldPosition + (Vector3.down * size / 2));
-        if (node.ativo)
+        upCenter = new ParticleNode(true, node.localPosition + (Vector3.right * size / 2));
+        leftCenter = new ParticleNode(true, node.localPosition + (Vector3.down * size / 2));
+        if (node.isDense)
         {
             configuration += 8;
         }
     }
-    public void setUpRight(Node node)
+    public void setUpRight(ParticleNode node)
     {
         upRight = node;
-        upCenter = new Node(true, node.worldPosition + (Vector3.left * size / 2));
-        rightCenter = new Node(true, node.worldPosition + (Vector3.down * size / 2));
-        if (node.ativo)
+        upCenter = new ParticleNode(true, node.localPosition + (Vector3.left * size / 2));
+        rightCenter = new ParticleNode(true, node.localPosition + (Vector3.down * size / 2));
+        if (node.isDense)
         {
             configuration += 4;
         }
     }
-    public void setBottomRight(Node node)
+    public void setBottomRight(ParticleNode node)
     {
         bottomRight = node;
-        rightCenter = new Node(true, node.worldPosition + Vector3.up * size / 2);
-        bottomCenter = new Node(true, node.worldPosition + Vector3.left * size / 2);
-        if (node.ativo)
+        rightCenter = new ParticleNode(true, node.localPosition + Vector3.up * size / 2);
+        bottomCenter = new ParticleNode(true, node.localPosition + Vector3.left * size / 2);
+        if (node.isDense)
         {
             configuration += 2;
         }
     }
 
-    public void setBottomLeft(Node node)
+    public void setBottomLeft(ParticleNode node)
     {
         bottomLeft = node;
-        leftCenter = new Node(true, node.worldPosition + Vector3.up * size / 2);
-        bottomCenter = new Node(true, node.worldPosition + Vector3.right * size / 2);
-        if (node.ativo)
+        leftCenter = new ParticleNode(true, node.localPosition + Vector3.up * size / 2);
+        bottomCenter = new ParticleNode(true, node.localPosition + Vector3.right * size / 2);
+        if (node.isDense)
         {
             configuration += 1;
         }
@@ -333,68 +333,68 @@ public class Square
         switch (configuration)
         {
             case 1://conferido//conferido
-                meshdata.AddTriangleSimultaneo(bottomCenter.GetPosicao(), bottomLeft.GetPosicao(), leftCenter.GetPosicao());
+                meshdata.AddTriangleSimultaneo(bottomCenter.GetLocalPosition(), bottomLeft.GetLocalPosition(), leftCenter.GetLocalPosition());
                 break;
             case 2://conferido //conferido
-                meshdata.AddTriangleSimultaneo(rightCenter.GetPosicao(), bottomRight.GetPosicao(), bottomCenter.GetPosicao());
+                meshdata.AddTriangleSimultaneo(rightCenter.GetLocalPosition(), bottomRight.GetLocalPosition(), bottomCenter.GetLocalPosition());
                 break;
             case 3://conferido//conferido
-                meshdata.AddTriangleSimultaneo(leftCenter.GetPosicao(), rightCenter.GetPosicao(), bottomLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(rightCenter.GetPosicao(), bottomRight.GetPosicao(), bottomLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(leftCenter.GetLocalPosition(), rightCenter.GetLocalPosition(), bottomLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(rightCenter.GetLocalPosition(), bottomRight.GetLocalPosition(), bottomLeft.GetLocalPosition());
                 break;
             case 4://conferido //conferido
-                meshdata.AddTriangleSimultaneo(upCenter.GetPosicao(), upRight.GetPosicao(), rightCenter.GetPosicao());
+                meshdata.AddTriangleSimultaneo(upCenter.GetLocalPosition(), upRight.GetLocalPosition(), rightCenter.GetLocalPosition());
                 break;
             case 5://conferido//conferido
-                meshdata.AddTriangleSimultaneo(upCenter.GetPosicao(), upRight.GetPosicao(), rightCenter.GetPosicao());
-                meshdata.AddTriangleSimultaneo(upCenter.GetPosicao(), rightCenter.GetPosicao(), bottomCenter.GetPosicao());
-                meshdata.AddTriangleSimultaneo(bottomLeft.GetPosicao(), upCenter.GetPosicao(), bottomCenter.GetPosicao());
-                meshdata.AddTriangleSimultaneo(leftCenter.GetPosicao(), upCenter.GetPosicao(), bottomLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(upCenter.GetLocalPosition(), upRight.GetLocalPosition(), rightCenter.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(upCenter.GetLocalPosition(), rightCenter.GetLocalPosition(), bottomCenter.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(bottomLeft.GetLocalPosition(), upCenter.GetLocalPosition(), bottomCenter.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(leftCenter.GetLocalPosition(), upCenter.GetLocalPosition(), bottomLeft.GetLocalPosition());
                 break;
             case 6://conferido //conferido
-                meshdata.AddTriangleSimultaneo(upCenter.GetPosicao(), upRight.GetPosicao(), bottomRight.GetPosicao());
-                meshdata.AddTriangleSimultaneo(bottomCenter.GetPosicao(), upCenter.GetPosicao(), bottomRight.GetPosicao());
+                meshdata.AddTriangleSimultaneo(upCenter.GetLocalPosition(), upRight.GetLocalPosition(), bottomRight.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(bottomCenter.GetLocalPosition(), upCenter.GetLocalPosition(), bottomRight.GetLocalPosition());
                 break;
             case 7://conferido//conferido
-                meshdata.AddTriangleSimultaneo(bottomRight.GetPosicao(), upCenter.GetPosicao(), upRight.GetPosicao());
-                meshdata.AddTriangleSimultaneo(bottomLeft.GetPosicao(), upCenter.GetPosicao(), bottomRight.GetPosicao());
-                meshdata.AddTriangleSimultaneo(leftCenter.GetPosicao(), upCenter.GetPosicao(), bottomLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(bottomRight.GetLocalPosition(), upCenter.GetLocalPosition(), upRight.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(bottomLeft.GetLocalPosition(), upCenter.GetLocalPosition(), bottomRight.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(leftCenter.GetLocalPosition(), upCenter.GetLocalPosition(), bottomLeft.GetLocalPosition());
                 break;
             case 8://conferido //conferido
-                meshdata.AddTriangleSimultaneo(leftCenter.GetPosicao(), upLeft.GetPosicao(), upCenter.GetPosicao());
+                meshdata.AddTriangleSimultaneo(leftCenter.GetLocalPosition(), upLeft.GetLocalPosition(), upCenter.GetLocalPosition());
                 break;
             case 9://conferido //conferido
-                meshdata.AddTriangleSimultaneo(upLeft.GetPosicao(), bottomCenter.GetPosicao(), bottomLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(upCenter.GetPosicao(), bottomCenter.GetPosicao(), upLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(upLeft.GetLocalPosition(), bottomCenter.GetLocalPosition(), bottomLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(upCenter.GetLocalPosition(), bottomCenter.GetLocalPosition(), upLeft.GetLocalPosition());
                 break;
             case 10://conferido//conferido
-                meshdata.AddTriangleSimultaneo(upCenter.GetPosicao(), rightCenter.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(rightCenter.GetPosicao(), bottomRight.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(upLeft.GetPosicao(), bottomRight.GetPosicao(), bottomCenter.GetPosicao());
-                meshdata.AddTriangleSimultaneo(upLeft.GetPosicao(), bottomCenter.GetPosicao(), leftCenter.GetPosicao());
+                meshdata.AddTriangleSimultaneo(upCenter.GetLocalPosition(), rightCenter.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(rightCenter.GetLocalPosition(), bottomRight.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(upLeft.GetLocalPosition(), bottomRight.GetLocalPosition(), bottomCenter.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(upLeft.GetLocalPosition(), bottomCenter.GetLocalPosition(), leftCenter.GetLocalPosition());
                 break;
             case 11://conferido //conferido
-                meshdata.AddTriangleSimultaneo(bottomRight.GetPosicao(), bottomLeft.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(rightCenter.GetPosicao(), bottomRight.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(upCenter.GetPosicao(), rightCenter.GetPosicao(), upLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(bottomRight.GetLocalPosition(), bottomLeft.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(rightCenter.GetLocalPosition(), bottomRight.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(upCenter.GetLocalPosition(), rightCenter.GetLocalPosition(), upLeft.GetLocalPosition());
                 break;
             case 12://conferido //conferido
-                meshdata.AddTriangleSimultaneo(rightCenter.GetPosicao(), leftCenter.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(upRight.GetPosicao(), rightCenter.GetPosicao(), upLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(rightCenter.GetLocalPosition(), leftCenter.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(upRight.GetLocalPosition(), rightCenter.GetLocalPosition(), upLeft.GetLocalPosition());
                 break;
             case 13://conferido //conferido
-                meshdata.AddTriangleSimultaneo(upRight.GetPosicao(), rightCenter.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(rightCenter.GetPosicao(), bottomCenter.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(upLeft.GetPosicao(), bottomCenter.GetPosicao(), bottomLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(upRight.GetLocalPosition(), rightCenter.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(rightCenter.GetLocalPosition(), bottomCenter.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(upLeft.GetLocalPosition(), bottomCenter.GetLocalPosition(), bottomLeft.GetLocalPosition());
                 break;
             case 14://conferido //conferido
-                meshdata.AddTriangleSimultaneo(upRight.GetPosicao(), bottomRight.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(bottomRight.GetPosicao(), bottomCenter.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(bottomCenter.GetPosicao(), leftCenter.GetPosicao(), upLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(upRight.GetLocalPosition(), bottomRight.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(bottomRight.GetLocalPosition(), bottomCenter.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(bottomCenter.GetLocalPosition(), leftCenter.GetLocalPosition(), upLeft.GetLocalPosition());
                 break;
             case 15://conferido //conferido
-                meshdata.AddTriangleSimultaneo(upRight.GetPosicao(), bottomRight.GetPosicao(), upLeft.GetPosicao());
-                meshdata.AddTriangleSimultaneo(bottomRight.GetPosicao(), bottomLeft.GetPosicao(), upLeft.GetPosicao());
+                meshdata.AddTriangleSimultaneo(upRight.GetLocalPosition(), bottomRight.GetLocalPosition(), upLeft.GetLocalPosition());
+                meshdata.AddTriangleSimultaneo(bottomRight.GetLocalPosition(), bottomLeft.GetLocalPosition(), upLeft.GetLocalPosition());
                 break;
 
         }
@@ -404,26 +404,23 @@ public class Square
 
 }
 
-public class Node
+public class ParticleNode
 {
-    public bool ativo { get; set; }
-    public Vector3 worldPosition { get; set; }
+    public bool isDense { get; set; }
+    public Vector3 localPosition { get; set; }
 
-    public Node(bool _ativo)
+    public ParticleNode(bool _isDense)
     {
-        ativo = _ativo;
+        isDense = _isDense;
     }
-    public Node(bool _ativo, Vector3 _posicao)
+    public ParticleNode(bool _isDense, Vector3 _localPosition)
     {
-        ativo = _ativo;
-        if (ativo == true)
-        {
-            worldPosition = _posicao;
-        }
+        isDense = _isDense;
+        localPosition = _localPosition;
     }
-    public Vector3 GetPosicao()
+    public Vector3 GetLocalPosition()
     {
-        return worldPosition;
+        return localPosition;
     }
 
 }

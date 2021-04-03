@@ -11,7 +11,7 @@ public class Chunk
     int m_chunkHeight;
     int m_chunkWidth;
     const float baseSquareScale = 1.0f;
-    Node[,] nodeMap;
+    ParticleNode[,] nodeMap;
     NodeDensityLoader m_nodeDensityLoader;
 
     public Chunk(Vector2Int chunkPos)
@@ -22,18 +22,20 @@ public class Chunk
 
     bool LoadNodes()
     {
-        nodeMap = new Node[ConvertToNodeMapIndex(m_chunkWidth), ConvertToNodeMapIndex(m_chunkHeight)];
-        for (int x = 0; x < nodeMap.Length; x++)
+        nodeMap = new ParticleNode[ConvertToNodeMapIndex(m_chunkWidth), ConvertToNodeMapIndex(m_chunkHeight)];
+        for (int x = 0; x < nodeMap.GetLength(0); x++)
         {
-            for (int y = 0; y < nodeMap.Length; x++)
+            for (int y = 0; y < nodeMap.GetLength(1); y++)
             {
-                nodeMap[x,y] = new Node(false);
+                //float thisX = 
+                nodeMap[x,y] = new ParticleNode(false);
+                nodeMap[x, y].localPosition = NodeMapIndexToLocalCoord(x, y);
                 LoadNodeLoadPipeline(nodeMap[x, y]);
             }
         }
         return true;
     }
-    bool LoadNodeLoadPipeline(Node n)
+    bool LoadNodeLoadPipeline(ParticleNode n)
     {
         m_nodeDensityLoader.LoadAttribute(n);
         return true;
@@ -52,6 +54,10 @@ public class Chunk
         return new Vector2Int(chunkPosX, chunkPosY);
     }
 
+    Vector2 NodeMapIndexToLocalCoord(int x, int y)
+    {
+        return new Vector2(x*baseSquareScale, y*baseSquareScale);
+    }
     Vector2 LocalToWorldCoord(Vector2 localCoord)
     {
         float worldCoordX = (m_chunkPos.x * m_chunkWidth) + localCoord.x;
@@ -77,20 +83,32 @@ public class Chunk
     //Attribute Classes
     abstract class AbstractNodeAttributeLoader
     {
-        internal abstract bool LoadAttribute(Node n);
+        protected Chunk nodeChunk;
+
+        internal AbstractNodeAttributeLoader(Chunk _nodeChunk)
+        {
+            nodeChunk = _nodeChunk;
+        }
+        internal abstract bool LoadAttribute(ParticleNode n);
     }
     class NodeDensityLoader : AbstractNodeAttributeLoader
     {
         static FastNoise densityNoise = new FastNoise(1);
+
+        NodeDensityLoader(Chunk _nodeChunk) : base(_nodeChunk)
+        {
+
+        }
 
         bool ApplyDensityNoise(float x, float y)
         {
             return densityNoise.GetSimplexFractal(x, y) > 0.1f;
         }
 
-        internal override bool LoadAttribute(Node n)
+        internal override bool LoadAttribute(ParticleNode n)
         {
-            n.ativo = ApplyDensityNoise(n.worldPosition.x, n.worldPosition.y);
+            Vector2 worldCoord = nodeChunk.LocalToWorldCoord(n.localPosition);
+            n.isDense = ApplyDensityNoise(worldCoord.x, worldCoord.y);
             return true;
         }
     }
