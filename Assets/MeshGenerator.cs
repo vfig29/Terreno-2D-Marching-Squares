@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class MeshGenerator : MonoBehaviour
 {
     
-    public int GerarSeed()
-    {
-        return System.Guid.NewGuid().GetHashCode();
-    }
+    
 
     
 }
@@ -35,25 +30,26 @@ public class MeshData
         vertexIndexes = new Dictionary<Vector3, VertexData>(new Vector3CoordComparer());
     }
 
-    public void BuildMeshData(ParticleNode[,] densityMap, float tamanhoSquare)
+    public MeshData BuildMeshData(ParticleNode[,] nodeMap, float baseSquareSize)
     {
         //definindo os vertices
-        for (int i = 0; i < densityMap.GetLength(0) - 1; i++)
+        for (int i = 0; i < nodeMap.GetLength(0) - 1; i++) // explora de quadrado em quadrado, e por isso, varre até o lenght -1.
         {
-            for (int j = 0; j < densityMap.GetLength(1) - 1; j++)
+            for (int j = 0; j < nodeMap.GetLength(1) - 1; j++) // explora de quadrado em quadrado, e por isso, varre até o lenght -1.
             {
-                Square square = new Square(tamanhoSquare);
-                densityMap[i, j + 1].localPosition = new Vector3(i * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
-                square.setUpLeft(densityMap[i, j + 1]);
-                densityMap[i + 1, j + 1].localPosition = new Vector3((i + 1) * tamanhoSquare, (j + 1) * tamanhoSquare, 0);
-                square.setUpRight(densityMap[i + 1, j + 1]);
-                densityMap[i, j].localPosition = new Vector3(i * tamanhoSquare, j * tamanhoSquare, 0);
-                square.setBottomLeft(densityMap[i, j]);
-                densityMap[i + 1, j].localPosition = new Vector3((i + 1) * tamanhoSquare, (j) * tamanhoSquare, 0);
-                square.setBottomRight(densityMap[i + 1, j]);
+                Square square = new Square(baseSquareSize);
+                nodeMap[i, j + 1].localPosition = new Vector3(i * baseSquareSize, (j + 1) * baseSquareSize, 0);
+                square.setUpLeft(nodeMap[i, j + 1]);
+                nodeMap[i + 1, j + 1].localPosition = new Vector3((i + 1) * baseSquareSize, (j + 1) * baseSquareSize, 0);
+                square.setUpRight(nodeMap[i + 1, j + 1]);
+                nodeMap[i, j].localPosition = new Vector3(i * baseSquareSize, j * baseSquareSize, 0);
+                square.setBottomLeft(nodeMap[i, j]);
+                nodeMap[i + 1, j].localPosition = new Vector3((i + 1) * baseSquareSize, (j) * baseSquareSize, 0);
+                square.setBottomRight(nodeMap[i + 1, j]);
                 square.AddInMeshData(this);
             }
         }
+        return this;
     }
 
     public MeshData BuildSurfaceMeshData()
@@ -115,11 +111,11 @@ public class MeshData
 
     public void AddTriangle(VertexData a, VertexData b, VertexData c)
     {
-        a.triangles.Add(Mathf.FloorToInt(triangulos.Count / 3));
+        a.triangles.Add(Mathf.FloorToInt(triangulos.Count/3));
         triangulos.Add(a.index);
-        b.triangles.Add(Mathf.FloorToInt(triangulos.Count / 3));
+        b.triangles.Add(Mathf.FloorToInt(triangulos.Count/3));
         triangulos.Add(b.index);
-        c.triangles.Add(Mathf.FloorToInt(triangulos.Count / 3));
+        c.triangles.Add(Mathf.FloorToInt(triangulos.Count/3));
         triangulos.Add(c.index);
     }
 
@@ -150,8 +146,8 @@ public class MeshData
         int quadsPorX = 1;
         for (int i = 1; i <= quadsPorX; i++)
         {
-            AddTriangleSimultaneo(coordA, coordA + new Vector3(0, 0, i*profundidadeQuadSide), coordB);
-            AddTriangleSimultaneo(coordB, coordA + new Vector3(0, 0, i*profundidadeQuadSide), coordB + new Vector3(0, 0, i*profundidadeQuadSide));
+            AddTriangleSimultaneo(coordA, coordA + new Vector3(0, 10, i*profundidadeQuadSide), coordB);
+            AddTriangleSimultaneo(coordB, coordA + new Vector3(0, 10, i*profundidadeQuadSide), coordB + new Vector3(0, 10, i*profundidadeQuadSide));
         }
     }
 

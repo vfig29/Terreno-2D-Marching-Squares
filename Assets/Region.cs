@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class Region
 {
-    int regionWidth;
-    int regionHeight;
-    Chunk[,] regionChunks = new Chunk[10, 10];
+
+    public static float highestGround = 200;
+    public static float lowestGround = 50;
+    Vector3Int regionChunkSize;
+    Chunk[,] regionChunks = new Chunk[30, 30];
 
     public Region()
     {
         LoadRegion();
+        SpawnChunks();
     }
 
     void LoadRegion()
@@ -22,9 +25,20 @@ public class Region
     {
         for (int x = 0; x < regionChunks.GetLength(0); x++)
         {
-            for (int y = 0; x < regionChunks.GetLength(1); y++)
+            for (int y = 0; y < regionChunks.GetLength(1); y++)
             {
                 regionChunks[x, y] = new Chunk(new Vector2Int(x, y));
+            }
+        }
+    }
+
+    void SpawnChunks()
+    {
+        for (int x = 0; x < regionChunks.GetLength(0); x++)
+        {
+            for (int y = 0; y < regionChunks.GetLength(1); y++)
+            {
+                regionChunks[x, y].CreateGO();
             }
         }
     }

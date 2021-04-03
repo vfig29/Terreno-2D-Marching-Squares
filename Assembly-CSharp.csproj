@@ -69,6 +69,7 @@
     <Compile Include="Assets\MeshGenerator.cs" />
     <Compile Include="Assets\Region.cs" />
     <Compile Include="Assets\UVMapper.cs" />
+    <Compile Include="Assets\WorldLoader.cs" />
     <Reference Include="UnityEngine">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.4.13f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
