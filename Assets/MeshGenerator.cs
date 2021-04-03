@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class MeshGenerator : MonoBehaviour
@@ -15,10 +16,6 @@ public class MeshData
 {
     public List<int> triangulos;
     Dictionary<Vector3, VertexData> vertexIndexes;
-    //
-    private int altura;
-    private int largura;
-    //
     public struct VertexData
     {
         public int index;
@@ -144,7 +141,7 @@ public class MeshData
     void TriangulateBorder(Vector3 coordA, Vector3 coordB, float profundidadeQuadSide)
     {
         int quadsPorX = 1;
-        int inclination = 20;
+        int inclination = 0;
         for (int i = 1; i <= quadsPorX; i++)
         {
             AddTriangleSimultaneo(coordA, coordA + new Vector3(0, inclination*i, i*profundidadeQuadSide), coordB);

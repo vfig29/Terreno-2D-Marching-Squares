@@ -64,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Chunk.cs" />
+    <Compile Include="Assets\ChunkGO.cs" />
     <Compile Include="Assets\EliRNG.cs" />
     <Compile Include="Assets\FastNoise.cs" />
     <Compile Include="Assets\MeshGenerator.cs" />

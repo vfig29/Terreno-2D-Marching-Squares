@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using UnityEngine;
 
 public class Chunk
@@ -14,8 +15,8 @@ public class Chunk
     const float baseSquareScale = 2.0f;
     ParticleNode[,] nodeMap;
     NodeDensityLoader m_nodeDensityLoader;
-    MeshData m_meshData;
-    MeshData m_surfaceMeshData;
+    public MeshData m_meshData { get; set; }
+    public MeshData m_surfaceMeshData { get; set; }
 
     public Chunk(Vector2Int chunkPos)
     {
@@ -23,7 +24,12 @@ public class Chunk
         m_chunkPos = chunkPos;
         InstanceLoaders();
         m_isLoaded = LoadNodes();
-        m_meshData = LoadMeshData();//Requer nodeMap carregado.
+        UpdateAllChunkMeshData();
+    }
+
+    public void UpdateAllChunkMeshData()
+    {
+        m_meshData = LoadMeshData(); //Requer nodeMap carregado.
         m_surfaceMeshData = LoadSurfaceMeshData(); //Requer m_meshData carregado.
     }
 
@@ -66,18 +72,18 @@ public class Chunk
     public GameObject CreateGO()
     {
         GameObject chunkGO = new GameObject("Chunk " + m_chunkPos.ToString());
+        ChunkGO chunkGOScript = chunkGO.AddComponent<ChunkGO>();
+        chunkGOScript.loadedChunk = this;
         chunkGO.transform.position = LocalToWorldCoord(Vector2.zero);
         MeshFilter  meshFilter = chunkGO.AddComponent<MeshFilter>();
-        meshFilter.sharedMesh = m_meshData.BuildMeshComponent();
         chunkGO.AddComponent<MeshRenderer>().sharedMaterial = Resources.Load<Material>("DirtMaterial");
-        UVMapper.BoxUV(meshFilter.sharedMesh, chunkGO.transform);
         //Surface:
         GameObject chunkSurfaceGO = new GameObject("Surface");
         chunkSurfaceGO.transform.SetParent(chunkGO.transform, false); 
-        MeshFilter meshFilterSurface = chunkSurfaceGO.AddComponent<MeshFilter>();
-        meshFilterSurface.sharedMesh = m_surfaceMeshData.BuildMeshComponent();
-        UVMapper.BoxUV(meshFilterSurface.sharedMesh, chunkSurfaceGO.transform);
-        chunkSurfaceGO.AddComponent<MeshRenderer>().sharedMaterial = Resources.Load<Material>("GrassMaterial"); ;
+        chunkGOScript.surfaceMesh = chunkSurfaceGO.AddComponent<MeshFilter>();
+        chunkSurfaceGO.AddComponent<MeshRenderer>().sharedMaterial = Resources.Load<Material>("GrassMaterial");
+        //UpdateMeshComponent:
+        chunkGOScript.UpdateMeshComponent();
         return chunkGO;
     }
 
