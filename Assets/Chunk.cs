@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 public class Chunk
@@ -137,14 +138,13 @@ public class Chunk
 
         bool ApplyDensityNoise(float x, float y)
         {
-            return true;//densityNoise.GetSimplexFractal(x, y) < 0.3f;
+            return densityNoise.GetSimplexFractal(x, y) < 0.3f;
         }
 
         bool ApplyHeightNoise(float x, float y)
         {
-            float value = 50f + (Region.highestGround * Mathf.Abs(heightNoise.GetSimplexFractal(x, 0)));
-            Debug.Log(value);
-            return  y < value;
+            float maxHeight = Region.lowestGroundRelief + (Region.highestExtraRelief * Mathf.Abs(heightNoise.GetPerlinFractal(x, 0))); //Mathf.Abs(heightNoise.GetSimplexFractal(x, 0))
+            return  y < maxHeight;
         }
 
         internal override bool LoadAttribute(ParticleNode n)

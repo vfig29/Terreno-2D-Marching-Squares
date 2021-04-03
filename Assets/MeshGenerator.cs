@@ -54,7 +54,7 @@ public class MeshData
 
     public MeshData BuildSurfaceMeshData()
     {
-        int profundidadeQuadSize = 20;
+        int profundidadeQuadSize = 5;
         MeshData surfaceMesh = new MeshData();
         VertexData[] vertexDataArray = vertexIndexes.Values.ToArray<VertexData>();
         Vector3[] coordArray = vertexIndexes.Keys.ToArray();
@@ -144,10 +144,11 @@ public class MeshData
     void TriangulateBorder(Vector3 coordA, Vector3 coordB, float profundidadeQuadSide)
     {
         int quadsPorX = 1;
+        int inclination = 20;
         for (int i = 1; i <= quadsPorX; i++)
         {
-            AddTriangleSimultaneo(coordA, coordA + new Vector3(0, 10, i*profundidadeQuadSide), coordB);
-            AddTriangleSimultaneo(coordB, coordA + new Vector3(0, 10, i*profundidadeQuadSide), coordB + new Vector3(0, 10, i*profundidadeQuadSide));
+            AddTriangleSimultaneo(coordA, coordA + new Vector3(0, inclination*i, i*profundidadeQuadSide), coordB);
+            AddTriangleSimultaneo(coordB, coordA + new Vector3(0, inclination*i, i*profundidadeQuadSide), coordB + new Vector3(0, inclination*i, i*profundidadeQuadSide));
         }
     }
 

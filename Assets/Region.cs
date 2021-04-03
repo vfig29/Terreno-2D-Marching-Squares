@@ -5,8 +5,8 @@ using UnityEngine;
 public class Region
 {
 
-    public static float highestGround = 200;
-    public static float lowestGround = 50;
+    public static float highestExtraRelief = 200;
+    public static float lowestGroundRelief = 50;
     Vector3Int regionChunkSize;
     Chunk[,] regionChunks = new Chunk[30, 30];
 
