@@ -52,6 +52,12 @@ public class Chunk
         return new Vector2Int(chunkPosX, chunkPosY);
     }
 
+    Vector2 LocalToWorldCoord(Vector2 localCoord)
+    {
+        float worldCoordX = (m_chunkPos.x * m_chunkWidth) + localCoord.x;
+        float worldCoordY = (m_chunkPos.y * m_chunkHeight) + localCoord.y;
+        return new Vector2(worldCoordX, worldCoordY);
+    }
     Vector2 WorldCoordToLocalCoord(Vector2 worldCoord)
     {
         float localX = m_chunkPos.x * m_chunkWidth;
