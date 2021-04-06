@@ -87,6 +87,12 @@ public class Chunk
         return chunkGO;
     }
 
+    public void SetNodeDensity(Vector2 localCoord, bool settedDensity)
+    {
+        Vector2Int nodeIndex = LocalCoordToNodeMapCoord(localCoord);
+        nodeMap[nodeIndex.x, nodeIndex.y].isDense = settedDensity;
+    }
+
     Vector2Int WorldCoordToChunkPos(Vector2 worldCoord)
     {
         int chunkPosX = Mathf.FloorToInt(worldCoord.x / m_chunkWidth);
@@ -161,6 +167,5 @@ public class Chunk
             return true;
         }
     }
-
 }
 
