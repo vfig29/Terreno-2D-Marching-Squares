@@ -5,7 +5,7 @@ using UnityEngine;
 public class ChunkGO : MonoBehaviour
 {
     public Chunk loadedChunk { get; set; }
-    public MeshFilter surfaceMesh { get; set; }
+    public GameObject surfaceGO { get; set; }
 
 
     private void Update()
@@ -21,9 +21,12 @@ public class ChunkGO : MonoBehaviour
     public void UpdateMeshComponent()
     {
         Mesh thisChunkGOMesh = GetComponent<MeshFilter>().sharedMesh = loadedChunk.m_meshData.BuildMeshComponent();
-        surfaceMesh.sharedMesh = loadedChunk.m_surfaceMeshData.BuildMeshComponent();
+        Mesh surfaceGOMesh = surfaceGO.GetComponent<MeshFilter>().sharedMesh = loadedChunk.m_surfaceMeshData.BuildMeshComponent();
+        //Setting Colliders
+        GetComponent<MeshCollider>().sharedMesh = thisChunkGOMesh;
+        surfaceGO.GetComponent<MeshCollider>().sharedMesh = surfaceGOMesh;
         //Setting Uvs
-        UVMapper.BoxUV(surfaceMesh.sharedMesh, surfaceMesh.gameObject.transform);
+        UVMapper.BoxUV(surfaceGOMesh, surfaceGO.transform);
         UVMapper.BoxUV(thisChunkGOMesh, transform);
     }
 

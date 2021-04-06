@@ -75,12 +75,15 @@ public class Chunk
         ChunkGO chunkGOScript = chunkGO.AddComponent<ChunkGO>();
         chunkGOScript.loadedChunk = this;
         chunkGO.transform.position = LocalToWorldCoord(Vector2.zero);
-        MeshFilter  meshFilter = chunkGO.AddComponent<MeshFilter>();
+        chunkGO.AddComponent<MeshFilter>();
         chunkGO.AddComponent<MeshRenderer>().sharedMaterial = Resources.Load<Material>("DirtMaterial");
+        chunkGO.AddComponent<MeshCollider>();
         //Surface:
         GameObject chunkSurfaceGO = new GameObject("Surface");
-        chunkSurfaceGO.transform.SetParent(chunkGO.transform, false); 
-        chunkGOScript.surfaceMesh = chunkSurfaceGO.AddComponent<MeshFilter>();
+        chunkGOScript.surfaceGO = chunkSurfaceGO;
+        chunkSurfaceGO.transform.SetParent(chunkGO.transform, false);
+        chunkSurfaceGO.AddComponent<MeshFilter>();
+        chunkSurfaceGO.AddComponent<MeshCollider>();
         chunkSurfaceGO.AddComponent<MeshRenderer>().sharedMaterial = Resources.Load<Material>("GrassMaterial");
         //UpdateMeshComponent:
         chunkGOScript.UpdateMeshComponent();
