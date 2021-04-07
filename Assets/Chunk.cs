@@ -52,7 +52,7 @@ public class Chunk
     }
     bool LoadNodes()
     {
-        particleNodeMap = new ParticleNode[ConvertToNodeMapIndex(m_chunkWidth) + 1, ConvertToNodeMapIndex(m_chunkHeight) + 1]; // faz um node extra, para compensar o vertice a menos na criação do mesh. 
+        particleNodeMap = new ParticleNode[ConvertToNodeMapIndex(m_chunkWidth), ConvertToNodeMapIndex(m_chunkHeight)]; // faz um node extra, para compensar o vertice a menos na criação do mesh. 
         for (int x = 0; x < particleNodeMap.GetLength(0); x++)
         {
             for (int y = 0; y < particleNodeMap.GetLength(1); y++)
@@ -86,7 +86,7 @@ public class Chunk
         GameObject chunkGO = new GameObject("Chunk " + m_chunkPos.ToString());
         ChunkGO chunkGOScript = chunkGO.AddComponent<ChunkGO>();
         chunkGOScript.loadedChunk = this;
-        chunkGO.transform.position = LocalToWorldCoord(Vector2.zero);
+        chunkGO.transform.position = m_chunkPos * NodeMapIndexToLocalCoord(m_chunkWidth - 1, m_chunkHeight - 1);
         chunkGO.AddComponent<MeshFilter>();
         chunkGO.AddComponent<MeshRenderer>().sharedMaterial = Resources.Load<Material>("DirtMaterial");
         chunkGO.AddComponent<MeshCollider>();
@@ -105,6 +105,8 @@ public class Chunk
     public void SetNodeDensity(Vector2 localCoord, bool settedDensity)
     {
         Vector2Int nodeIndex = LocalCoordToNodeMapCoord(localCoord);
+        Debug.Log("From Node: " + particleNodeMap[nodeIndex.x, nodeIndex.y].localPosition);
+        Debug.Log("From Conversion: " + nodeIndex);
         particleNodeMap[nodeIndex.x, nodeIndex.y].isDense = settedDensity;
     }
 

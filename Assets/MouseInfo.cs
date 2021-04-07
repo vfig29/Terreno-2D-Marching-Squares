@@ -25,6 +25,7 @@ public class MouseInfo : MonoBehaviour
                 {
                     if (_hittedInfo.transform.TryGetComponent<ChunkGO>(out ChunkGO chunkGO))
                     {
+                        print("From Mesh: " + vertexLocalCoord);
                         chunkGO.ChangeDensity(vertexLocalCoord, false);
                     }
                 }
@@ -50,9 +51,6 @@ public class MouseInfo : MonoBehaviour
                 hittedMesh.triangles[_hittedInfo.triangleIndex * 3 + 1],
                 hittedMesh.triangles[_hittedInfo.triangleIndex * 3 + 2]
                 };
-            //Vector3 v1 = meshVertices[triangleVertices[0]];
-            //Vector3 v2 = meshVertices[triangleVertices[1]];
-            //Vector3 v3 = meshVertices[triangleVertices[2]];
             float closestDistance = Vector3.Distance(hittedMesh.vertices[triangleVertices[0]], _hittedInfo.point);
             int closestVertexIndex = triangleVertices[0];
             for (int i = 0; i < triangleVertices.Length; i++)

@@ -15,7 +15,7 @@ public class Region
     {
         LoadRegion();
         SpawnChunks();
-        regionChunks[5, 5].TesteUnitario();
+        //regionChunks[5, 5].TesteUnitario();
     }
 
     void LoadRegion()
