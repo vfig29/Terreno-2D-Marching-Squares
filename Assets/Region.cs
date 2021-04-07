@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class Region
@@ -21,6 +22,7 @@ public class Region
         LoadChunks();
     }
 
+
     void LoadChunks()
     {
         for (int x = 0; x < regionChunks.GetLength(0); x++)
@@ -30,6 +32,25 @@ public class Region
                 regionChunks[x, y] = new Chunk(new Vector2Int(x, y));
             }
         }
+    }
+
+    void GetFromRightChunk(Chunk baseChunk)
+    {
+
+    }
+
+    void GetFromLeftChunk(Chunk baseChunk)
+    {
+
+    }
+
+    void GetFromBottomChunk(Chunk baseChunk)
+    {
+
+    }
+    void GetFromTopChunk(Chunk baseChunk)
+    {
+
     }
 
     void SpawnChunks()

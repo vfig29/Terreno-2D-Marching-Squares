@@ -12,10 +12,11 @@ public class ChunkGO : MonoBehaviour
     {
     }
 
-    void ChangeDensity(Vector2 targetNodeLocalCoord, bool settedDensity)
+    public void ChangeDensity(Vector2 targetNodeLocalCoord, bool settedDensity)
     {
         loadedChunk.SetNodeDensity(targetNodeLocalCoord, settedDensity);
         loadedChunk.UpdateAllChunkMeshData();
+        UpdateMeshComponent();
     }
 
     public void UpdateMeshComponent()
