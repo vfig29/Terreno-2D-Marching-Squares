@@ -12,8 +12,8 @@ public class Chunk
     Vector2Int m_chunkPos;
     const int m_chunkHeight = 20;
     const int m_chunkWidth = 20;
-    const float baseSquareScale = 2.0f;
-    ParticleNode[,] nodeMap;
+    const float baseSquareScale = 1.0f;
+    ParticleNode[,] particleNodeMap;
     NodeDensityLoader m_nodeDensityLoader;
     public MeshData m_meshData { get; set; }
     public MeshData m_surfaceMeshData { get; set; }
@@ -39,14 +39,13 @@ public class Chunk
     }
     bool LoadNodes()
     {
-        nodeMap = new ParticleNode[ConvertToNodeMapIndex(m_chunkWidth) + 1, ConvertToNodeMapIndex(m_chunkHeight) + 1]; // faz um node extra, para compensar o vertice a menos na criação do mesh. 
-        for (int x = 0; x < nodeMap.GetLength(0); x++)
+        particleNodeMap = new ParticleNode[ConvertToNodeMapIndex(m_chunkWidth) + 1, ConvertToNodeMapIndex(m_chunkHeight) + 1]; // faz um node extra, para compensar o vertice a menos na criação do mesh. 
+        for (int x = 0; x < particleNodeMap.GetLength(0); x++)
         {
-            for (int y = 0; y < nodeMap.GetLength(1); y++)
+            for (int y = 0; y < particleNodeMap.GetLength(1); y++)
             {
-                nodeMap[x,y] = new ParticleNode(false);
-                nodeMap[x, y].localPosition = NodeMapIndexToLocalCoord(x, y);
-                LoadNodeLoadPipeline(nodeMap[x, y]);
+                particleNodeMap[x,y] = new ParticleNode(false, NodeMapIndexToLocalCoord(x, y));
+                LoadNodeLoadPipeline(particleNodeMap[x, y]);
             }
         }
         return true;
@@ -60,7 +59,7 @@ public class Chunk
     MeshData LoadMeshData()
     {
         MeshData chunkMeshData = new MeshData();
-        chunkMeshData.BuildMeshData(nodeMap, baseSquareScale);
+        chunkMeshData.BuildMeshData(particleNodeMap, baseSquareScale);
         return chunkMeshData;
     }
 
@@ -93,7 +92,7 @@ public class Chunk
     public void SetNodeDensity(Vector2 localCoord, bool settedDensity)
     {
         Vector2Int nodeIndex = LocalCoordToNodeMapCoord(localCoord);
-        nodeMap[nodeIndex.x, nodeIndex.y].isDense = settedDensity;
+        particleNodeMap[nodeIndex.x, nodeIndex.y].isDense = settedDensity;
     }
 
     Vector2Int WorldCoordToChunkPos(Vector2 worldCoord)

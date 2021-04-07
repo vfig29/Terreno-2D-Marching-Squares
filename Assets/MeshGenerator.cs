@@ -35,13 +35,9 @@ public class MeshData
             for (int j = 0; j < nodeMap.GetLength(1) - 1; j++) // explora de quadrado em quadrado, e por isso, varre até o lenght -1.
             {
                 Square square = new Square(baseSquareSize);
-                nodeMap[i, j + 1].localPosition = new Vector3(i * baseSquareSize, (j + 1) * baseSquareSize, 0);
                 square.setUpLeft(nodeMap[i, j + 1]);
-                nodeMap[i + 1, j + 1].localPosition = new Vector3((i + 1) * baseSquareSize, (j + 1) * baseSquareSize, 0);
                 square.setUpRight(nodeMap[i + 1, j + 1]);
-                nodeMap[i, j].localPosition = new Vector3(i * baseSquareSize, j * baseSquareSize, 0);
                 square.setBottomLeft(nodeMap[i, j]);
-                nodeMap[i + 1, j].localPosition = new Vector3((i + 1) * baseSquareSize, (j) * baseSquareSize, 0);
                 square.setBottomRight(nodeMap[i + 1, j]);
                 square.AddInMeshData(this);
             }
@@ -157,22 +153,22 @@ public class MeshData
 
 public class Square
 {
-    float size;
+    float squareScale;
     //vertice:
     ParticleNode upLeft, upRight, bottomLeft, bottomRight;
-    ParticleNode bottomCenter, rightCenter, upCenter, leftCenter;
+    SubNode bottomCenter, rightCenter, upCenter, leftCenter;
     int configuration;
 
     public Square(float _size)
     {
-        size = _size;
+        squareScale = _size;
         configuration = 0;
     }
     public void setUpLeft(ParticleNode node)
     {
         upLeft = node;
-        upCenter = new ParticleNode(true, node.localPosition + (Vector3.right * size / 2));
-        leftCenter = new ParticleNode(true, node.localPosition + (Vector3.down * size / 2));
+        upCenter = new SubNode(node.localPosition + (Vector3.right * squareScale / 2));
+        leftCenter = new SubNode(node.localPosition + (Vector3.down * squareScale / 2));
         if (node.isDense)
         {
             configuration += 8;
@@ -181,8 +177,8 @@ public class Square
     public void setUpRight(ParticleNode node)
     {
         upRight = node;
-        upCenter = new ParticleNode(true, node.localPosition + (Vector3.left * size / 2));
-        rightCenter = new ParticleNode(true, node.localPosition + (Vector3.down * size / 2));
+        upCenter = new SubNode(node.localPosition + (Vector3.left * squareScale / 2));
+        rightCenter = new SubNode(node.localPosition + (Vector3.down * squareScale / 2));
         if (node.isDense)
         {
             configuration += 4;
@@ -191,8 +187,8 @@ public class Square
     public void setBottomRight(ParticleNode node)
     {
         bottomRight = node;
-        rightCenter = new ParticleNode(true, node.localPosition + Vector3.up * size / 2);
-        bottomCenter = new ParticleNode(true, node.localPosition + Vector3.left * size / 2);
+        rightCenter = new SubNode(node.localPosition + Vector3.up * squareScale / 2);
+        bottomCenter = new SubNode(node.localPosition + Vector3.left * squareScale / 2);
         if (node.isDense)
         {
             configuration += 2;
@@ -202,8 +198,8 @@ public class Square
     public void setBottomLeft(ParticleNode node)
     {
         bottomLeft = node;
-        leftCenter = new ParticleNode(true, node.localPosition + Vector3.up * size / 2);
-        bottomCenter = new ParticleNode(true, node.localPosition + Vector3.right * size / 2);
+        leftCenter = new SubNode(node.localPosition + Vector3.up * squareScale / 2);
+        bottomCenter = new SubNode(node.localPosition + Vector3.right * squareScale / 2);
         if (node.isDense)
         {
             configuration += 1;
@@ -286,11 +282,19 @@ public class Square
 
 }
 
-public class ParticleNode
+public abstract class Node
 {
-    public bool isDense { get; set; }
     public Vector3 localPosition { get; set; }
 
+    public Vector3 GetLocalPosition()
+    {
+        return localPosition;
+    }
+}
+
+public class ParticleNode : Node //particleMap nodes.
+{
+    public bool isDense { get; set; }
     public ParticleNode(bool _isDense)
     {
         isDense = _isDense;
@@ -300,11 +304,16 @@ public class ParticleNode
         isDense = _isDense;
         localPosition = _localPosition;
     }
-    public Vector3 GetLocalPosition()
-    {
-        return localPosition;
-    }
+    
 
+}
+
+public class SubNode : Node // MarchingSquare nodes.
+{
+    public SubNode(Vector3 _localPosition)
+    {
+        localPosition = _localPosition;
+    }
 }
 
 class Vector3CoordComparer : IEqualityComparer<Vector3>
