@@ -38,6 +38,72 @@ public class Chunk
     {
         m_nodeDensityLoader = new NodeDensityLoader(this);
     }
+
+    bool GetRightAdjacentChunk(out Chunk _returnedChunk)
+    {
+        int adjacentX = m_chunkPos.x + 1;
+        int regionSizeX = WorldLoader.instance.currentRegion.regionChunkSize.x;
+        if (adjacentX < regionSizeX)
+        {
+            _returnedChunk = WorldLoader.instance.currentRegion.regionChunks[adjacentX, m_chunkPos.y];
+            return true;
+        }
+        else
+        {
+            _returnedChunk = null;
+            return false;
+        }
+
+    }
+
+    bool GetLeftAdjacentChunk(out Chunk _returnedChunk)
+    {
+        int adjacentX = m_chunkPos.x - 1;
+        if (adjacentX >= 0)
+        {
+            _returnedChunk = WorldLoader.instance.currentRegion.regionChunks[adjacentX, m_chunkPos.y];
+            return true;
+        }
+        else
+        {
+            _returnedChunk = null;
+            return false;
+        }
+
+    }
+
+    bool GetBottomAdjacentChunk(out Chunk _returnedChunk)
+    {
+        int adjacentY = m_chunkPos.y - 1;
+        int regionSizeY = WorldLoader.instance.currentRegion.regionChunkSize.y;
+        if (adjacentY < regionSizeY)
+        {
+            _returnedChunk = WorldLoader.instance.currentRegion.regionChunks[m_chunkPos.x, adjacentY];
+            return true;
+        }
+        else
+        {
+            _returnedChunk = null;
+            return false;
+        }
+
+    }
+
+    bool GetTopAdjacentChunk(out Chunk _returnedChunk)
+    {
+        int adjacentY = m_chunkPos.y + 1;
+        if (adjacentY >= 0)
+        {
+            _returnedChunk = WorldLoader.instance.currentRegion.regionChunks[m_chunkPos.x, adjacentY];
+            return true;
+        }
+        else
+        {
+            _returnedChunk = null;
+            return false;
+        }
+
+    }
     bool LoadNodes()
     {
         particleNodeMap = new ParticleNode[ConvertToNodeMapIndex(m_chunkWidth), ConvertToNodeMapIndex(m_chunkHeight)]; // faz um node extra, para compensar o vertice a menos na criação do mesh. 

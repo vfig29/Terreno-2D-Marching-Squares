@@ -8,11 +8,12 @@ public class Region
 
     public static float highestExtraRelief = 200;
     public static float lowestGroundRelief = 50;
-    Vector3Int regionChunkSize;
+    public Vector2Int regionChunkSize;
     public Chunk[,] regionChunks = new Chunk[30, 30];
 
     public Region()
     {
+        regionChunkSize = new Vector2Int(30, 30);
         LoadRegion();
         SpawnChunks();
     }
@@ -25,6 +26,7 @@ public class Region
 
     void LoadChunks()
     {
+        regionChunks = new Chunk[regionChunkSize.x, regionChunkSize.y];
         for (int x = 0; x < regionChunks.GetLength(0); x++)
         {
             for (int y = 0; y < regionChunks.GetLength(1); y++)
