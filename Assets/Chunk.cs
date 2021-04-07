@@ -18,6 +18,7 @@ public class Chunk
     public MeshData m_meshData { get; set; }
     public MeshData m_surfaceMeshData { get; set; }
 
+
     public Chunk(Vector2Int chunkPos)
     {
         
@@ -25,19 +26,6 @@ public class Chunk
         InstanceLoaders();
         m_isLoaded = LoadNodes();
         UpdateAllChunkMeshData();
-    }
-
-    public void TesteUnitario()
-    {
-        for (int x = -40; x < 40; x++)
-        {
-            for (int y = -40; y < 40; y++)
-            {
-                Vector2 entrada = new Vector2(x, y);
-                Debug.Log("Entrada: " + entrada);
-                Debug.Log("Saída: " + WorldCoordToChunkPos(entrada));
-            }
-        }
     }
 
     public void UpdateAllChunkMeshData()
@@ -80,13 +68,19 @@ public class Chunk
     {
         return m_meshData.BuildSurfaceMeshData();
     }
+    //
+    public void CalculatePhysics()
+    {
 
+    }
+
+    //
     public GameObject CreateGO()
     {
         GameObject chunkGO = new GameObject("Chunk " + m_chunkPos.ToString());
         ChunkGO chunkGOScript = chunkGO.AddComponent<ChunkGO>();
         chunkGOScript.loadedChunk = this;
-        chunkGO.transform.position = m_chunkPos * NodeMapIndexToLocalCoord(m_chunkWidth - 1, m_chunkHeight - 1);
+        chunkGO.transform.position = m_chunkPos*NodeMapIndexToLocalCoord(m_chunkWidth - 1, m_chunkHeight - 1);
         chunkGO.AddComponent<MeshFilter>();
         chunkGO.AddComponent<MeshRenderer>().sharedMaterial = Resources.Load<Material>("DirtMaterial");
         chunkGO.AddComponent<MeshCollider>();
@@ -110,7 +104,8 @@ public class Chunk
         particleNodeMap[nodeIndex.x, nodeIndex.y].isDense = settedDensity;
     }
 
-    Vector2Int WorldCoordToChunkPos(Vector2 worldCoord)
+
+    public static Vector2Int WorldCoordToChunkPos(Vector2 worldCoord)
     {
         int chunkPosX = Mathf.FloorToInt(worldCoord.x / m_chunkWidth);
         int chunkPosY = Mathf.FloorToInt(worldCoord.y / m_chunkHeight);

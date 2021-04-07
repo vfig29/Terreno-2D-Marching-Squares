@@ -12,10 +12,23 @@ public class MouseInfo : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ModifyTerrain();
+        ModifyTerrainRaycast();
     }
-
-    void ModifyTerrain()
+    /*
+    void ModifyTerrainDirect()
+    {
+        if (Input.GetMouseButton(0))
+        {
+            if (MouseRaycast(out RaycastHit _hittedInfo))
+            {
+                Vector2 mousePos = _hittedInfo.point;
+                Vector2Int chunkPos = Chunk.WorldCoordToChunkPos(mousePos);
+                //WorldLoader.instance.currentRegion.regionChunks[chunkPos.x, chunkPos.y].chunkGOScript.ChangeDensity(mousePos, false);
+            }
+        }
+    }
+    (*/
+    void ModifyTerrainRaycast()
     {
         if (Input.GetMouseButton(0))
         {

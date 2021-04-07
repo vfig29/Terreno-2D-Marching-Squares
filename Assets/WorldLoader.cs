@@ -5,10 +5,12 @@ using UnityEngine;
 public class WorldLoader : MonoBehaviour
 {
     public static int gameSeed;
-    Region currentRegion;
+    public Region currentRegion;
+    public static WorldLoader instance;
     // Start is called before the first frame update
     void Start()
     {
+        instance = this;
         gameSeed = GerarSeed();
         currentRegion = new Region();
     }

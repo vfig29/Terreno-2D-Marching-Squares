@@ -9,13 +9,12 @@ public class Region
     public static float highestExtraRelief = 200;
     public static float lowestGroundRelief = 50;
     Vector3Int regionChunkSize;
-    Chunk[,] regionChunks = new Chunk[30, 30];
+    public Chunk[,] regionChunks = new Chunk[30, 30];
 
     public Region()
     {
         LoadRegion();
         SpawnChunks();
-        //regionChunks[5, 5].TesteUnitario();
     }
 
     void LoadRegion()
@@ -34,6 +33,7 @@ public class Region
             }
         }
     }
+    
 
     void SpawnChunks()
     {
@@ -42,6 +42,17 @@ public class Region
             for (int y = 0; y < regionChunks.GetLength(1); y++)
             {
                 regionChunks[x, y].CreateGO();
+            }
+        }
+    }
+
+    void UpdatePhysics()
+    {
+        for (int x = 0; x < regionChunks.GetLength(0); x++)
+        {
+            for (int y = 0; y < regionChunks.GetLength(1); y++)
+            {
+                regionChunks[x, y].CalculatePhysics();
             }
         }
     }
