@@ -15,6 +15,7 @@ public class Region
     {
         LoadRegion();
         SpawnChunks();
+        regionChunks[5, 5].TesteUnitario();
     }
 
     void LoadRegion()
@@ -32,25 +33,6 @@ public class Region
                 regionChunks[x, y] = new Chunk(new Vector2Int(x, y));
             }
         }
-    }
-
-    void GetFromRightChunk(Chunk baseChunk)
-    {
-
-    }
-
-    void GetFromLeftChunk(Chunk baseChunk)
-    {
-
-    }
-
-    void GetFromBottomChunk(Chunk baseChunk)
-    {
-
-    }
-    void GetFromTopChunk(Chunk baseChunk)
-    {
-
     }
 
     void SpawnChunks()

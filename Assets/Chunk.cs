@@ -27,6 +27,19 @@ public class Chunk
         UpdateAllChunkMeshData();
     }
 
+    public void TesteUnitario()
+    {
+        for (int x = -40; x < 40; x++)
+        {
+            for (int y = -40; y < 40; y++)
+            {
+                Vector2 entrada = new Vector2(x, y);
+                Debug.Log("Entrada: " + entrada);
+                Debug.Log("Saída: " + WorldCoordToChunkPos(entrada));
+            }
+        }
+    }
+
     public void UpdateAllChunkMeshData()
     {
         m_meshData = LoadMeshData(); //Requer nodeMap carregado.
@@ -112,10 +125,11 @@ public class Chunk
         float worldCoordY = (m_chunkPos.y * m_chunkHeight) + localCoord.y;
         return new Vector2(worldCoordX, worldCoordY);
     }
-    Vector2 WorldCoordToLocalCoord(Vector2 worldCoord)
+    Vector2 WorldCoordToLocalCoord(Vector2 worldCoord)//saída é sempre numeros positivos entre 0 e o tamanho do chunk.
     {
-        float localX = m_chunkPos.x * m_chunkWidth;
-        float localY = m_chunkPos.y * m_chunkHeight;
+        Vector2 chunkPos = WorldCoordToChunkPos(worldCoord);
+        float localX = ( chunkPos.x * m_chunkWidth);
+        float localY = (chunkPos.y * m_chunkHeight);
         return (worldCoord - new Vector2(localX, localY));
     }
     Vector2Int LocalCoordToNodeMapCoord(Vector2 localCoord)
